@@ -134,28 +134,51 @@
         };
 
         function addInventory() { 
-            db.collection("inventory").add({ name: document.getElementById('itemName').value, qty: document.getElementById('itemQty').value, buy: document.getElementById('buyPrice').value }).then(() => showStatus('msgInv')); 
+            const name = document.getElementById('itemName').value.trim();
+            const qty = document.getElementById('itemQty').value.trim();
+            const buy = document.getElementById('buyPrice').value.trim();
+            if(!name || !qty || !buy) { alert("အချက်အလက် အပြည့်အစုံ ဖြည့်ပါ။"); return; }
+            db.collection("inventory").add({ name: name, qty: qty, buy: buy }).then(() => {
+                document.getElementById('itemName').value = '';
+                document.getElementById('itemQty').value = '';
+                document.getElementById('buyPrice').value = '';
+                showStatus('msgInv');
+            }); 
         }
         
         function processSale() { 
             const select = document.getElementById('saleItemSelect');
+            const qty = document.getElementById('saleQty').value.trim();
+            const sellPrice = document.getElementById('sellPrice').value.trim();
+            if(select.value === "ပစ္စည်းရွေးပါ" || !qty || !sellPrice) { alert("အရောင်းအချက်အလက် မှန်ကန်စွာ ဖြည့်ပါ။"); return; }
             const buyPrice = select.options[select.selectedIndex].getAttribute('data-buy') || 0;
             db.collection("sales").add({ 
                 item: select.value, 
-                qty: document.getElementById('saleQty').value, 
-                sellPrice: document.getElementById('sellPrice').value,
+                qty: qty, 
+                sellPrice: sellPrice,
                 buyPrice: buyPrice,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp() 
-            }).then(() => showStatus('msgSale')); 
+            }).then(() => {
+                document.getElementById('saleQty').value = '';
+                document.getElementById('sellPrice').value = '';
+                select.selectedIndex = 0;
+                showStatus('msgSale');
+            }); 
         }
 
         function addSupplier() { 
-            db.collection("suppliers").add({ 
-                name: document.getElementById('supName').value, 
-                shop: document.getElementById('supShop').value, 
-                phone: document.getElementById('supPhone').value,
-                fb: document.getElementById('supFB').value 
-            }).then(() => showStatus('msgSup')); 
+            const name = document.getElementById('supName').value.trim();
+            const shop = document.getElementById('supShop').value.trim();
+            const phone = document.getElementById('supPhone').value.trim();
+            const fb = document.getElementById('supFB').value.trim();
+            if(!name || !shop) { alert("အမည်နှင့် ဆိုင်နာမည် ထည့်ပါ။"); return; }
+            db.collection("suppliers").add({ name: name, shop: shop, phone: phone, fb: fb }).then(() => {
+                document.getElementById('supName').value = '';
+                document.getElementById('supShop').value = '';
+                document.getElementById('supPhone').value = '';
+                document.getElementById('supFB').value = '';
+                showStatus('msgSup');
+            }); 
         }
 
         function filterReport(period) {
@@ -194,7 +217,11 @@
             } else { alert("ID သို့မဟုတ် Password မှားနေသည်"); } 
         }
         
-        function updateAdmin() { adminId = document.getElementById('newAdminId').value; adminPass = document.getElementById('newAdminPass').value; alert("ပြောင်းလဲပြီးပါပြီ"); }
+        function updateAdmin() { 
+            adminId = document.getElementById('newAdminId').value; 
+            adminPass = document.getElementById('newAdminPass').value; 
+            alert("ပြောင်းလဲပြီးပါပြီ"); 
+        }
         
         function showSection(id) { 
             ['supplier', 'reports', 'settings', 'userView'].forEach(s => document.getElementById(s).classList.add('hidden')); 
