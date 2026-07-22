@@ -25,24 +25,53 @@
         <!-- User View -->
         <div id="userView" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Add Inventory Item with Corrected Spelling & Unit Selector -->
                 <div class="bg-emerald-100 p-4 rounded-xl border">
                     <h2 class="font-bold text-emerald-800 mb-2">ပစ္စည်းစာရင်းသွင်းရန်</h2>
-                    <input type="text" id="itemName" placeholder="ပစ္စည်းအမည်" class="w-full p-2 mb-1 border rounded">
-                    <input type="number" id="itemQty" placeholder="အရေအတွက်" class="w-full p-2 mb-1 border rounded">
-                    <input type="number" id="buyPrice" placeholder="ဝယ်ဈေး" class="w-full p-2 mb-2 border rounded">
-                    <button onclick="addInventory()" class="w-full bg-emerald-600 text-white py-2 rounded-lg">သိမ်းမည်</button>
+                    <input type="text" id="itemName" placeholder="ပစ္စည်းအမည် (ဥပမာ - ကြက်သွန်)" class="w-full p-2 mb-2 border rounded">
+                    
+                    <div class="flex gap-2 mb-2">
+                        <input type="number" id="itemQty" placeholder="အရေအတွက်" class="w-1/2 p-2 border rounded bg-white">
+                        <select id="unitSelect" onchange="handleUnitChange()" class="w-1/2 p-2 border rounded bg-white font-medium text-emerald-900">
+                            <option value="ပိဿာ">ပိဿာ</option>
+                            <option value="ကျပ်သား">ကျပ်သား</option>
+                            <option value="ပြည်">ပြည်</option>
+                            <option value="တင်း">တင်း</option>
+                            <option value="အိတ်">အိတ်</option>
+                            <option value="အုပ်">အုပ်</option>
+                            <option value="ထည်">ထည်</option>
+                            <option value="ချောင်း">ချောင်း</option>
+                            <option value="ဗူး">ဗူး</option>
+                            <option value="ထုပ်">ထုပ်</option>
+                            <option value="ခု">ခု</option>
+                            <option value="custom">အခြား (ကိုယ်တိုင်ရိုက်ရန်)...</option>
+                        </select>
+                    </div>
+
+                    <!-- Custom Unit Input (Hidden by default) -->
+                    <div id="customUnitWrapper" class="hidden mb-2">
+                        <input type="text" id="customUnit" placeholder="ယူနစ်အမည်အသစ် (ဥပမာ- ပုံး၊ ကဒ်)" class="w-full p-2 border rounded bg-yellow-50">
+                    </div>
+
+                    <input type="number" id="buyPrice" placeholder="ဝယ်ဈေး" class="w-full p-2 mb-2 border rounded bg-white">
+                    <button onclick="addInventory()" class="w-full bg-emerald-600 text-white py-2 rounded-lg font-semibold hover:bg-emerald-700">သိမ်းမည်</button>
                     <p id="msgInv" class="text-emerald-700 text-center mt-2 font-bold hidden">သိမ်းပြီးပါပြီ</p>
                 </div>
+
+                <!-- Sales Record (Allows selling independent quantities) -->
                 <div class="bg-sky-100 p-4 rounded-xl border">
                     <h2 class="font-bold text-sky-800 mb-2">အရောင်းမှတ်တမ်း</h2>
-                    <select id="saleItemSelect" class="w-full p-2 mb-1 border rounded"><option>ပစ္စည်းရွေးပါ</option></select>
-                    <input type="number" id="saleQty" placeholder="အရေအတွက်" class="w-full p-2 mb-1 border rounded">
-                    <input type="number" id="sellPrice" placeholder="ရောင်းဈေး" class="w-full p-2 mb-2 border rounded">
-                    <button onclick="processSale()" class="w-full bg-sky-600 text-white py-2 rounded-lg">ရောင်းမည်</button>
+                    <select id="saleItemSelect" class="w-full p-2 mb-2 border rounded bg-white"><option>ပစ္စည်းရွေးပါ</option></select>
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="number" id="saleQty" placeholder="ရောင်းမည့် ပမာဏ" class="w-full p-2 border rounded bg-white">
+                        <span id="saleUnitDisplay" class="font-bold text-sky-900 whitespace-nowrap">ယူနစ်</span>
+                    </div>
+                    <input type="number" id="sellPrice" placeholder="ရောင်းဈေး" class="w-full p-2 mb-2 border rounded bg-white">
+                    <button onclick="processSale()" class="w-full bg-sky-600 text-white py-2 rounded-lg font-semibold hover:bg-sky-700">ရောင်းမည်</button>
                     <p id="msgSale" class="text-sky-700 text-center mt-2 font-bold hidden">ရောင်းပြီးပါပြီ</p>
                 </div>
             </div>
-            <div id="invList" class="bg-white p-4 rounded-xl border shadow-sm"></div>
+            <div id="invList" class="bg-white p-4 rounded-xl border shadow-sm overflow-x-auto"></div>
         </div>
 
         <!-- Admin Sections -->
@@ -52,7 +81,7 @@
             <input type="text" id="supShop" placeholder="ဆိုင်နာမည်" class="w-full p-2 border rounded">
             <input type="text" id="supPhone" placeholder="ဖုန်းနံပါတ်" class="w-full p-2 border rounded">
             <input type="text" id="supFB" placeholder="Facebook Link" class="w-full p-2 border rounded">
-            <button onclick="addSupplier()" class="w-full bg-amber-600 text-white py-2 rounded-lg">Supplier မှတ်တမ်းတင်</button>
+            <button onclick="addSupplier()" class="w-full bg-amber-600 text-white py-2 rounded-lg font-semibold">Supplier မှတ်တမ်းတင်</button>
             <p id="msgSup" class="text-amber-700 text-center mt-2 font-bold hidden">မှတ်တမ်းတင်ပြီးပါပြီ</p>
             <div id="supList" class="mt-4 text-sm overflow-x-auto"></div>
         </div>
@@ -60,9 +89,9 @@
         <div id="reports" class="hidden bg-purple-50 p-4 rounded-xl border">
             <h2 class="font-bold mb-2">စာရင်းဇယား</h2>
             <div class="flex gap-2 mb-4 overflow-x-auto">
-                <button onclick="filterReport('day')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs">နေ့စဉ်</button>
-                <button onclick="filterReport('week')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs">တစ်ပတ်</button>
-                <button onclick="filterReport('month')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs">တစ်လ</button>
+                <button onclick="filterReport('day')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold">နေ့စဉ်</button>
+                <button onclick="filterReport('week')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold">တစ်ပတ်</button>
+                <button onclick="filterReport('month')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold">တစ်လ</button>
             </div>
             <div id="statsDisplay" class="overflow-x-auto text-xs"></div>
         </div>
@@ -74,20 +103,20 @@
                 <input type="password" id="newAdminPass" placeholder="New Password" class="w-full p-2 border rounded pr-10">
                 <button onclick="togglePass('newAdminPass')" class="absolute right-2 top-2 text-sm text-gray-500">👁️</button>
             </div>
-            <button onclick="updateAdmin()" class="bg-red-600 text-white w-full py-2 rounded-lg">Admin ပြောင်းမည်</button>
+            <button onclick="updateAdmin()" class="bg-red-600 text-white w-full py-2 rounded-lg font-semibold">Admin ပြောင်းမည်</button>
         </div>
     </div>
 
     <!-- Login Modal -->
     <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-2xl w-full max-w-sm shadow-2xl">
-            <h2 class="font-bold mb-4 text-center">Admin Login</h2>
+            <h2 class="font-bold mb-4 text-center text-lg">Admin Login</h2>
             <input type="text" id="adminId" placeholder="Admin ID" class="w-full p-2 mb-2 border rounded">
             <div class="relative mb-4">
                 <input type="password" id="adminPass" placeholder="Admin Password" class="w-full p-2 border rounded pr-10">
                 <button onclick="togglePass('adminPass')" class="absolute right-2 top-2 text-sm text-gray-500">👁️</button>
             </div>
-            <button onclick="checkLogin()" class="w-full bg-blue-600 text-white py-2 rounded-lg">Login</button>
+            <button onclick="checkLogin()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold">Login</button>
             <button onclick="document.getElementById('loginModal').classList.add('hidden')" class="w-full mt-2 text-gray-500 text-sm">Cancel</button>
         </div>
     </div>
@@ -99,93 +128,176 @@
 
         let adminId = "admin", adminPass = "ssr123";
 
+        // Toggle Password Visibility
         function togglePass(id) {
             const x = document.getElementById(id);
             x.type = (x.type === "password") ? "text" : "password";
         }
 
+        // Status Toast Banner Helper
         function showStatus(id) {
             const el = document.getElementById(id);
             el.classList.remove('hidden');
             setTimeout(() => el.classList.add('hidden'), 2000);
         }
 
+        // Handle Unit Dropdown Custom Option Selection
+        function handleUnitChange() {
+            const select = document.getElementById('unitSelect');
+            const customWrapper = document.getElementById('customUnitWrapper');
+            if (select.value === 'custom') {
+                customWrapper.classList.remove('hidden');
+                document.getElementById('customUnit').focus();
+            } else {
+                customWrapper.classList.add('hidden');
+                document.getElementById('customUnit').value = '';
+            }
+        }
+
+        // Update Sale Unit Label dynamically when item is selected
+        function handleSaleItemChange() {
+            const select = document.getElementById('saleItemSelect');
+            const unitDisplay = document.getElementById('saleUnitDisplay');
+            if (select.selectedIndex > 0) {
+                const selectedOption = select.options[select.selectedIndex];
+                const unit = selectedOption.getAttribute('data-unit') || 'ခု';
+                unitDisplay.innerText = unit;
+            } else {
+                unitDisplay.innerText = 'ယူနစ်';
+            }
+        }
+
+        // Real-time Listeners on Window Load
         window.onload = function() {
+            // Inventory Snapshot
             db.collection("inventory").onSnapshot(snapshot => {
-                let html = "<table class='w-full text-left border'><tr><th>ပစ္စည်း</th><th>Qty</th><th>ဝယ်ဈေး</th></tr>";
+                let html = "<table class='w-full text-left border text-sm'><thead><tr class='bg-gray-50 border-b'><th class='p-2'>ပစ္စည်း</th><th class='p-2'>ကျန်ရှိသော အရေအတွက်</th><th class='p-2'>ဝယ်ဈေး</th></tr></thead><tbody>";
                 let select = document.getElementById('saleItemSelect');
                 select.innerHTML = '<option>ပစ္စည်းရွေးပါ</option>';
+                
                 snapshot.forEach(doc => {
                     let d = doc.data();
-                    html += `<tr><td>${d.name}</td><td>${d.qty}</td><td>${d.buy}</td></tr>`;
-                    select.innerHTML += `<option value="${d.name}" data-buy="${d.buy}">${d.name}</option>`;
+                    let unitStr = d.unit || 'ခု'; // Corrected fallback
+                    html += `<tr class='border-b'><td class='p-2'>${d.name}</td><td class='p-2 font-semibold text-emerald-700'>${d.qty} ${unitStr}</td><td class='p-2'>${d.buy} ကျပ်</td></tr>`;
+                    select.innerHTML += `<option value="${d.name}" data-buy="${d.buy}" data-unit="${unitStr}">${d.name} (လက်ကျန်: ${d.qty} ${unitStr})</option>`;
                 });
-                document.getElementById('invList').innerHTML = html + "</table>";
+                document.getElementById('invList').innerHTML = html + "</tbody></table>";
+                
+                // Attach listener to sale dropdown change
+                select.onchange = handleSaleItemChange;
+            }, error => {
+                console.error("Error loading inventory:", error);
             });
 
+            // Suppliers Snapshot
             db.collection("suppliers").onSnapshot(snapshot => {
-                let html = "<table class='w-full border text-xs'><tr><th>အမည်</th><th>ဆိုင်</th><th>ဖုန်း</th><th>FB</th></tr>";
+                let html = "<table class='w-full border text-xs'><thead><tr class='bg-amber-100 border-b'><th class='p-1'>အမည်</th><th class='p-1'>ဆိုင်</th><th class='p-1'>ဖုန်း</th><th class='p-1'>FB</th></tr></thead><tbody>";
                 snapshot.forEach(doc => {
                     let d = doc.data();
-                    html += `<tr><td>${d.name}</td><td>${d.shop}</td><td>${d.phone}</td><td><a href='${d.fb}' target='_blank' class='text-blue-500'>Link</a></td></tr>`;
+                    html += `<tr class='border-b'><td class='p-1'>${d.name}</td><td class='p-1'>${d.shop}</td><td class='p-1'>${d.phone}</td><td class='p-1'><a href='${d.fb}' target='_blank' class='text-blue-500 underline'>Link</a></td></tr>`;
                 });
-                document.getElementById('supList').innerHTML = html + "</table>";
+                document.getElementById('supList').innerHTML = html + "</tbody></table>";
+            }, error => {
+                console.error("Error loading suppliers:", error);
             });
         };
 
+        // Add Inventory Item
         function addInventory() { 
             const name = document.getElementById('itemName').value.trim();
             const qty = document.getElementById('itemQty').value.trim();
+            const unitSelectVal = document.getElementById('unitSelect').value;
+            let unit = unitSelectVal;
+            if (unitSelectVal === 'custom') {
+                unit = document.getElementById('customUnit').value.trim() || 'ခု';
+            }
             const buy = document.getElementById('buyPrice').value.trim();
-            if(!name || !qty || !buy) { alert("အချက်အလက် အပြည့်အစုံ ဖြည့်ပါ။"); return; }
-            db.collection("inventory").add({ name: name, qty: qty, buy: buy }).then(() => {
+
+            if(!name || !qty || !buy) { 
+                alert("အချက်အလက် အပြည့်အစုံ ဖြည့်ပါ။"); 
+                return; 
+            }
+
+            db.collection("inventory").add({ 
+                name: name, 
+                qty: parseFloat(qty), 
+                unit: unit, 
+                buy: parseFloat(buy) 
+            }).then(() => {
                 document.getElementById('itemName').value = '';
                 document.getElementById('itemQty').value = '';
+                document.getElementById('unitSelect').selectedIndex = 0;
+                document.getElementById('customUnit').value = '';
+                document.getElementById('customUnitWrapper').classList.add('hidden');
                 document.getElementById('buyPrice').value = '';
                 showStatus('msgInv');
-            }); 
+            }).catch(err => {
+                alert("သိမ်းဆည်းရာတွင် အမှားအယွင်းရှိပါသည်: " + err.message);
+            });
         }
         
+        // Process Sale Transaction & Record Separate Sale Qty
         function processSale() { 
             const select = document.getElementById('saleItemSelect');
             const qty = document.getElementById('saleQty').value.trim();
             const sellPrice = document.getElementById('sellPrice').value.trim();
-            if(select.value === "ပစ္စည်းရွေးပါ" || !qty || !sellPrice) { alert("အရောင်းအချက်အလက် မှန်ကန်စွာ ဖြည့်ပါ။"); return; }
+
+            if(select.value === "ပစ္စည်းရွေးပါ" || !qty || !sellPrice) { 
+                alert("အရောင်းအချက်အလက် မှန်ကန်စွာ ဖြည့်ပါ။"); 
+                return; 
+            }
+
             const buyPrice = select.options[select.selectedIndex].getAttribute('data-buy') || 0;
+            const unit = select.options[select.selectedIndex].getAttribute('data-unit') || 'ခု';
+
             db.collection("sales").add({ 
                 item: select.value, 
-                qty: qty, 
-                sellPrice: sellPrice,
-                buyPrice: buyPrice,
+                qty: parseFloat(qty), // Independent sold quantity (e.g. 2 out of 10)
+                unit: unit,
+                sellPrice: parseFloat(sellPrice),
+                buyPrice: parseFloat(buyPrice),
                 timestamp: firebase.firestore.FieldValue.serverTimestamp() 
             }).then(() => {
                 document.getElementById('saleQty').value = '';
                 document.getElementById('sellPrice').value = '';
                 select.selectedIndex = 0;
+                document.getElementById('saleUnitDisplay').innerText = 'ယူနစ်';
                 showStatus('msgSale');
-            }); 
+            }).catch(err => {
+                alert("အရောင်းမှတ်တမ်းတင်ရာတွင် အမှားရှိပါသည်: " + err.message);
+            });
         }
 
+        // Add Supplier
         function addSupplier() { 
             const name = document.getElementById('supName').value.trim();
             const shop = document.getElementById('supShop').value.trim();
             const phone = document.getElementById('supPhone').value.trim();
             const fb = document.getElementById('supFB').value.trim();
-            if(!name || !shop) { alert("အမည်နှင့် ဆိုင်နာမည် ထည့်ပါ။"); return; }
+
+            if(!name || !shop) { 
+                alert("အမည်နှင့် ဆိုင်နာမည် ထည့်ပါ။"); 
+                return; 
+            }
+
             db.collection("suppliers").add({ name: name, shop: shop, phone: phone, fb: fb }).then(() => {
                 document.getElementById('supName').value = '';
                 document.getElementById('supShop').value = '';
                 document.getElementById('supPhone').value = '';
                 document.getElementById('supFB').value = '';
                 showStatus('msgSup');
-            }); 
+            }).catch(err => {
+                alert("Supplier မှတ်တမ်းတင်ရာတွင် အမှားရှိပါသည်: " + err.message);
+            });
         }
 
+        // Filter and Display Sales Reports
         function filterReport(period) {
             db.collection("sales").get().then(snapshot => {
-                let html = "<table class='w-full border text-left'><tr><th>No</th><th>ပစ္စည်း</th><th>Qty</th><th>အမြတ်</th></tr>";
+                let html = "<table class='w-full border text-left text-xs'><thead><tr class='bg-purple-100 border-b'><th class='p-1'>စဉ်</th><th class='p-1'>ပစ္စည်း</th><th class='p-1'>ရောင်းရပမာဏ</th><th class='p-1'>အမြတ်</th></tr></thead><tbody>";
                 let now = new Date();
                 let count = 1;
+
                 snapshot.forEach(doc => {
                     let d = doc.data();
                     let saleDate = (d.timestamp && typeof d.timestamp.toDate === 'function') ? d.timestamp.toDate() : new Date();
@@ -198,14 +310,18 @@
                     else if(period === 'month' && diffDays <= 30) show = true;
 
                     if(show) {
+                        let unitStr = d.unit || 'ခု';
                         let profit = (parseFloat(d.sellPrice || 0) - parseFloat(d.buyPrice || 0)) * parseFloat(d.qty || 0);
-                        html += `<tr><td>${count++}</td><td>${d.item}</td><td>${d.qty}</td><td>${profit.toLocaleString()}</td></tr>`;
+                        html += `<tr class='border-b'><td class='p-1'>${count++}</td><td class='p-1'>${d.item}</td><td class='p-1 font-semibold text-sky-700'>${d.qty} ${unitStr}</td><td class='p-1 font-semibold text-emerald-600'>${profit.toLocaleString()} ကျပ်</td></tr>`;
                     }
                 });
-                document.getElementById('statsDisplay').innerHTML = html + "</table>";
+                document.getElementById('statsDisplay').innerHTML = html + "</tbody></table>";
+            }).catch(err => {
+                alert("စာရင်းဇယား ထုတ်ယူရာတွင် အမှားရှိပါသည်: " + err.message);
             });
         }
 
+        // Admin Authentication Check
         function checkLogin() { 
             if(document.getElementById('adminId').value === adminId && document.getElementById('adminPass').value === adminPass) { 
                 document.getElementById('loginModal').classList.add('hidden'); 
@@ -214,15 +330,25 @@
                 document.getElementById('supplierBtn').classList.remove('hidden');
                 document.getElementById('reportBtn').classList.remove('hidden');
                 document.getElementById('logoutBtn').classList.remove('hidden'); 
-            } else { alert("ID သို့မဟုတ် Password မှားနေသည်"); } 
+            } else { 
+                alert("ID သို့မဟုတ် Password မှားနေသည်"); 
+            } 
         }
         
+        // Update Admin Credentials
         function updateAdmin() { 
-            adminId = document.getElementById('newAdminId').value; 
-            adminPass = document.getElementById('newAdminPass').value; 
-            alert("ပြောင်းလဲပြီးပါပြီ"); 
+            const newId = document.getElementById('newAdminId').value.trim();
+            const newPass = document.getElementById('newAdminPass').value.trim();
+            if(!newId || !newPass) {
+                alert("ID နှင့် Password အသစ် အပြည့်အစုံထည့်ပါ။");
+                return;
+            }
+            adminId = newId; 
+            adminPass = newPass; 
+            alert("Admin အကောင့် ပြောင်းလဲပြီးပါပြီ"); 
         }
         
+        // Switch Between Dashboard Sections
         function showSection(id) { 
             ['supplier', 'reports', 'settings', 'userView'].forEach(s => document.getElementById(s).classList.add('hidden')); 
             document.getElementById(id).classList.remove('hidden'); 
