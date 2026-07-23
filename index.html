@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Store Management App</title>
+    <title>Store Sale Record & Inventory Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-4 md:p-6">
+<body class="bg-gradient-to-br from-indigo-50 to-blue-100 min-h-screen p-4 md:p-6 text-slate-800">
+
     <div class="max-w-4xl mx-auto bg-white p-6 rounded-2xl shadow-2xl">
-        <!-- Header -->
         <header class="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4 gap-4">
             <h1 class="text-xl font-bold text-blue-800">STORE DASHBOARD</h1>
             <div id="navButtons" class="flex gap-2 flex-wrap justify-center">
                 <button id="adminSetBtn" onclick="showSection('settings')" class="hidden bg-slate-600 text-white px-3 py-2 rounded-lg text-sm hover:bg-slate-700">Admin Settings</button>
                 <button id="supplierBtn" onclick="showSection('supplier')" class="hidden bg-amber-600 text-white px-3 py-2 rounded-lg text-sm font-bold">Supplier</button>
+                <button id="spellCheckBtn" onclick="showSection('spellCheckSection'); loadAdminSpellCheck();" class="hidden bg-indigo-600 text-white px-3 py-2 rounded-lg text-sm font-bold">စာလုံးပေါင်းပြင်ရန် (Admin)</button>
                 <button id="reportBtn" onclick="showSection('reports')" class="hidden bg-purple-600 text-white px-3 py-2 rounded-lg text-sm font-bold">စာရင်းဇယား</button>
                 <button id="adminBtn" onclick="document.getElementById('loginModal').classList.remove('hidden')" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700">Admin Login</button>
                 <button id="logoutBtn" onclick="location.reload()" class="hidden bg-red-500 text-white px-4 py-2 rounded-lg font-semibold">Logout</button>
             </div>
         </header>
 
-        <!-- User View -->
         <div id="userView" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Add Inventory Item with Corrected Spelling & Unit Selector -->
-                <div class="bg-emerald-100 p-4 rounded-xl border">
+                <div class="bg-emerald-100 p-4 rounded-xl border border-emerald-200">
                     <h2 class="font-bold text-emerald-800 mb-2">ပစ္စည်းစာရင်းသွင်းရန်</h2>
-                    <input type="text" id="itemName" placeholder="ပစ္စည်းအမည် (ဥပမာ - ကြက်သွန်)" class="w-full p-2 mb-2 border rounded">
+                    <input type="text" id="itemName" placeholder="ပစ္စည်းအမည် (ဥပမာ - ကြက်သွန်)" class="w-full p-2 mb-2 border rounded bg-white">
                     
                     <div class="flex gap-2 mb-2">
                         <input type="number" id="itemQty" placeholder="အရေအတွက်" class="w-1/2 p-2 border rounded bg-white">
@@ -58,8 +58,8 @@
                     <p id="msgInv" class="text-emerald-700 text-center mt-2 font-bold hidden">သိမ်းပြီးပါပြီ</p>
                 </div>
 
-                <!-- Sales Record (Allows selling independent quantities) -->
-                <div class="bg-sky-100 p-4 rounded-xl border">
+                <!-- Sales Record -->
+                <div class="bg-sky-100 p-4 rounded-xl border border-sky-200">
                     <h2 class="font-bold text-sky-800 mb-2">အရောင်းမှတ်တမ်း</h2>
                     <select id="saleItemSelect" class="w-full p-2 mb-2 border rounded bg-white"><option>ပစ္စည်းရွေးပါ</option></select>
                     <div class="flex items-center gap-2 mb-2">
@@ -74,41 +74,50 @@
             <div id="invList" class="bg-white p-4 rounded-xl border shadow-sm overflow-x-auto"></div>
         </div>
 
-        <!-- Admin Sections -->
-        <div id="supplier" class="hidden space-y-2 bg-amber-50 p-4 rounded-xl border">
-            <h2 class="font-bold text-amber-900 mb-2">Supplier စီမံခန့်ခွဲမှု</h2>
-            <input type="text" id="supName" placeholder="ဆက်သွယ်ရမည့်သူ" class="w-full p-2 border rounded">
-            <input type="text" id="supShop" placeholder="ဆိုင်နာမည်" class="w-full p-2 border rounded">
-            <input type="text" id="supPhone" placeholder="ဖုန်းနံပါတ်" class="w-full p-2 border rounded">
-            <input type="text" id="supFB" placeholder="Facebook Link" class="w-full p-2 border rounded">
-            <button onclick="addSupplier()" class="w-full bg-amber-600 text-white py-2 rounded-lg font-semibold">Supplier မှတ်တမ်းတင်</button>
-            <p id="msgSup" class="text-amber-700 text-center mt-2 font-bold hidden">မှတ်တမ်းတင်ပြီးပါပြီ</p>
-            <div id="supList" class="mt-4 text-sm overflow-x-auto"></div>
+        <div id="spellCheckSection" class="hidden space-y-4 bg-indigo-50 p-4 rounded-xl border border-indigo-200">
+            <div class="flex justify-between items-center">
+                <h2 class="font-bold text-indigo-900 text-lg">Admin စာလုံးပေါင်းနှင့် ယူနစ်ပြင်ဆင်ရန်</h2>
+                <button onclick="showSection('userView')" class="bg-slate-500 text-white px-3 py-1 rounded text-xs font-semibold">ပိတ်မည်</button>
+            </div>
+            <p class="text-xs text-indigo-700">ပစ္စည်းနာမည်စာလုံးပေါင်း မှားယွင်းနေပါက သို့မဟုတ် ရေတွက်ပုံ (Unit) ပြောင်းလဲလိုပါက ဤနေရာတွင် တိုက်ရိုက်ပြင်ဆင်နိုင်ပါသည်။</p>
+            <div id="adminSpellCheckList" class="space-y-2 max-h-96 overflow-y-auto">
+                <!-- Dynamically populated inventory correction rows -->
+            </div>
         </div>
 
-        <div id="reports" class="hidden bg-purple-50 p-4 rounded-xl border">
-            <h2 class="font-bold mb-2">စာရင်းဇယား</h2>
+        <div id="supplier" class="hidden space-y-2 bg-amber-50 p-4 rounded-xl border border-amber-200">
+            <h2 class="font-bold text-amber-900 mb-2">Supplier စီမံခန့်ခွဲမှု</h2>
+            <input type="text" id="supName" placeholder="ဆက်သွယ်ရမည့်သူ" class="w-full p-2 border rounded bg-white">
+            <input type="text" id="supShop" placeholder="ဆိုင်နာမည်" class="w-full p-2 border rounded bg-white">
+            <input type="text" id="supPhone" placeholder="ဖုန်းနံပါတ်" class="w-full p-2 border rounded bg-white">
+            <input type="text" id="supFB" placeholder="Facebook Link" class="w-full p-2 border rounded bg-white">
+            <button onclick="addSupplier()" class="w-full bg-amber-600 text-white py-2 rounded-lg font-semibold hover:bg-amber-700">Supplier မှတ်တမ်းတင်</button>
+            <p id="msgSup" class="text-amber-700 text-center mt-2 font-bold hidden">မှတ်တမ်းတင်ပြီးပါပြီ</p>
+            <div id="supList" class="mt-4 text-sm overflow-x-auto bg-white p-2 rounded border"></div>
+        </div>
+
+        <div id="reports" class="hidden bg-purple-50 p-4 rounded-xl border border-purple-200">
+            <h2 class="font-bold mb-2 text-purple-900">စာရင်းဇယား</h2>
             <div class="flex gap-2 mb-4 overflow-x-auto">
-                <button onclick="filterReport('day')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold">နေ့စဉ်</button>
-                <button onclick="filterReport('week')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold">တစ်ပတ်</button>
-                <button onclick="filterReport('month')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold">တစ်လ</button>
+                <button onclick="filterReport('day')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-purple-800">နေ့စဉ်</button>
+                <button onclick="filterReport('week')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-purple-800">တစ်ပတ်</button>
+                <button onclick="filterReport('month')" class="bg-purple-700 text-white px-3 py-1 rounded text-xs font-semibold hover:bg-purple-800">တစ်လ</button>
             </div>
-            <div id="statsDisplay" class="overflow-x-auto text-xs"></div>
+            <div id="statsDisplay" class="overflow-x-auto text-xs bg-white p-2 rounded border"></div>
         </div>
         
         <div id="settings" class="hidden bg-gray-200 p-4 rounded-xl border">
-            <h2 class="font-bold mb-2">Admin အကောင့် ပြောင်းလဲရန်</h2>
-            <input type="text" id="newAdminId" placeholder="New ID" class="w-full p-2 mb-1 border rounded">
+            <h2 class="font-bold mb-2 text-gray-800">Admin အကောင့် ပြောင်းလဲရန်</h2>
+            <input type="text" id="newAdminId" placeholder="New ID" class="w-full p-2 mb-1 border rounded bg-white">
             <div class="relative mb-2">
-                <input type="password" id="newAdminPass" placeholder="New Password" class="w-full p-2 border rounded pr-10">
+                <input type="password" id="newAdminPass" placeholder="New Password" class="w-full p-2 border rounded pr-10 bg-white">
                 <button onclick="togglePass('newAdminPass')" class="absolute right-2 top-2 text-sm text-gray-500">👁️</button>
             </div>
-            <button onclick="updateAdmin()" class="bg-red-600 text-white w-full py-2 rounded-lg font-semibold">Admin ပြောင်းမည်</button>
+            <button onclick="updateAdmin()" class="bg-red-600 text-white w-full py-2 rounded-lg font-semibold hover:bg-red-700">Admin ပြောင်းမည်</button>
         </div>
     </div>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div id="loginModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
         <div class="bg-white p-8 rounded-2xl w-full max-w-sm shadow-2xl">
             <h2 class="font-bold mb-4 text-center text-lg">Admin Login</h2>
             <input type="text" id="adminId" placeholder="Admin ID" class="w-full p-2 mb-2 border rounded">
@@ -116,7 +125,7 @@
                 <input type="password" id="adminPass" placeholder="Admin Password" class="w-full p-2 border rounded pr-10">
                 <button onclick="togglePass('adminPass')" class="absolute right-2 top-2 text-sm text-gray-500">👁️</button>
             </div>
-            <button onclick="checkLogin()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold">Login</button>
+            <button onclick="checkLogin()" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">Login</button>
             <button onclick="document.getElementById('loginModal').classList.add('hidden')" class="w-full mt-2 text-gray-500 text-sm">Cancel</button>
         </div>
     </div>
@@ -177,13 +186,12 @@
                 
                 snapshot.forEach(doc => {
                     let d = doc.data();
-                    let unitStr = d.unit || 'ခု'; // Corrected fallback
+                    let unitStr = d.unit || 'ခု';
                     html += `<tr class='border-b'><td class='p-2'>${d.name}</td><td class='p-2 font-semibold text-emerald-700'>${d.qty} ${unitStr}</td><td class='p-2'>${d.buy} ကျပ်</td></tr>`;
                     select.innerHTML += `<option value="${d.name}" data-buy="${d.buy}" data-unit="${unitStr}">${d.name} (လက်ကျန်: ${d.qty} ${unitStr})</option>`;
                 });
                 document.getElementById('invList').innerHTML = html + "</tbody></table>";
                 
-                // Attach listener to sale dropdown change
                 select.onchange = handleSaleItemChange;
             }, error => {
                 console.error("Error loading inventory:", error);
@@ -236,7 +244,7 @@
             });
         }
         
-        // Process Sale Transaction & Record Separate Sale Qty
+        // Process Sale Transaction
         function processSale() { 
             const select = document.getElementById('saleItemSelect');
             const qty = document.getElementById('saleQty').value.trim();
@@ -252,7 +260,7 @@
 
             db.collection("sales").add({ 
                 item: select.value, 
-                qty: parseFloat(qty), // Independent sold quantity (e.g. 2 out of 10)
+                qty: parseFloat(qty), 
                 unit: unit,
                 sellPrice: parseFloat(sellPrice),
                 buyPrice: parseFloat(buyPrice),
@@ -288,6 +296,59 @@
                 showStatus('msgSup');
             }).catch(err => {
                 alert("Supplier မှတ်တမ်းတင်ရာတွင် အမှားရှိပါသည်: " + err.message);
+            });
+        }
+
+        // Load Admin Spell Check & Unit Correction List
+        function loadAdminSpellCheck() {
+            db.collection("inventory").get().then(snapshot => {
+                let container = document.getElementById('adminSpellCheckList');
+                container.innerHTML = '';
+                if(snapshot.empty) {
+                    container.innerHTML = "<p class='text-xs text-gray-500'>ပစ္စည်းစာရင်း မရှိသေးပါ။</p>";
+                    return;
+                }
+                snapshot.forEach(docSnap => {
+                    let d = docSnap.data();
+                    let id = docSnap.id;
+                    let div = document.createElement('div');
+                    div.className = "flex flex-col sm:flex-row gap-2 bg-white p-3 rounded-lg border items-center justify-between shadow-sm";
+                    div.innerHTML = `
+                        <div class="flex-1 w-full">
+                            <label class="text-[10px] text-gray-500 font-semibold">ပစ္စည်းအမည် (စာလုံးပေါင်းပြင်ရန်)</label>
+                            <input type="text" id="edit_name_${id}" value="${d.name}" class="w-full p-1.5 border rounded text-sm font-medium">
+                        </div>
+                        <div class="w-full sm:w-36">
+                            <label class="text-[10px] text-gray-500 font-semibold">ရေတွက်ပုံ (Unit)</label>
+                            <input type="text" id="edit_unit_${id}" value="${d.unit || 'ခု'}" class="w-full p-1.5 border rounded text-sm font-medium">
+                        </div>
+                        <div class="w-full sm:w-auto pt-4 sm:pt-0">
+                            <button onclick="updateInventoryItem('${id}')" class="w-full bg-indigo-600 text-white px-4 py-1.5 rounded text-xs font-semibold hover:bg-indigo-700">ပြင်ဆင်မည်</button>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            }).catch(err => {
+                alert("စာရင်းများ ရယူရာတွင် အမှားရှိပါသည်: " + err.message);
+            });
+        }
+
+        // Update single inventory item name and unit spelling from Admin panel
+        function updateInventoryItem(id) {
+            const newName = document.getElementById(`edit_name_${id}`).value.trim();
+            const newUnit = document.getElementById(`edit_unit_${id}`).value.trim();
+            if(!newName || !newUnit) {
+                alert("အမည်နှင့် ယူနစ် အလွတ်မထားရပါ။");
+                return;
+            }
+            db.collection("inventory").doc(id).update({
+                name: newName,
+                unit: newUnit
+            }).then(() => {
+                alert("အောင်မြင်စွာ ပြင်ဆင်ပြီးပါပြီ။");
+                loadAdminSpellCheck();
+            }).catch(err => {
+                alert("ပြင်ဆင်ရာတွင် အမှားရှိပါသည်: " + err.message);
             });
         }
 
@@ -328,6 +389,7 @@
                 document.getElementById('adminBtn').classList.add('hidden'); 
                 document.getElementById('adminSetBtn').classList.remove('hidden');
                 document.getElementById('supplierBtn').classList.remove('hidden');
+                document.getElementById('spellCheckBtn').classList.remove('hidden');
                 document.getElementById('reportBtn').classList.remove('hidden');
                 document.getElementById('logoutBtn').classList.remove('hidden'); 
             } else { 
@@ -350,7 +412,7 @@
         
         // Switch Between Dashboard Sections
         function showSection(id) { 
-            ['supplier', 'reports', 'settings', 'userView'].forEach(s => document.getElementById(s).classList.add('hidden')); 
+            ['supplier', 'reports', 'settings', 'userView', 'spellCheckSection'].forEach(s => document.getElementById(s).classList.add('hidden')); 
             document.getElementById(id).classList.remove('hidden'); 
         }
     </script>
